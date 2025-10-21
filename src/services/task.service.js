@@ -2,13 +2,10 @@ import { PrismaClient } from "../generated/prisma/index.js";
 const prisma = new PrismaClient();
 
 export const createTask = async (userId, data) => {
-    const { title, description, priority, dueDate } = data;
-    return await prisma.task.create({
+    return prisma.task.create({
         data: {
-            title,
-            description,
-            priority,
-            dueDate: dueDate ? new Date(dueDate) : null,
+            ...data,
+            dueDate: data.dueDate ? new Date(data.dueDate) : null,
             userId,
         },
     });
@@ -21,16 +18,14 @@ export const getTasks = async (userId, filters = {}) => {
     if (filters.priority) where.priority = filters.priority;
     if (filters.dueDate) where.dueDate = { lte: new Date(filters.dueDate) };
 
-    return await prisma.task.findMany({
-        where,
-        orderBy: { createdAt: "desc" },
-    });
+    return prisma.task.findMany({ where, orderBy: { createdAt: "desc" } });
 };
 
 export const getTaskById = async (userId, taskId) => {
-    return await prisma.task.findFirst({
-        where: { id: taskId, userId },
-    });
+    const task = await prisma.task.findUnique({ where: { id: taskId } });
+    if (!task) throw { status: 404, message: "Task not found" };
+    if (task.userId !== userId) throw { status: 403, message: "Forbidden" };
+    return task;
 };
 
 export const updateTask = async (userId, taskId, data) => {
@@ -50,5 +45,5 @@ export const deleteTask = async (userId, taskId) => {
     if (task.userId !== userId) throw { status: 403, message: "Forbidden" };
 
     await prisma.task.delete({ where: { id: taskId } });
-    return { message: "Task deleted successfully" };
+    return;
 };
