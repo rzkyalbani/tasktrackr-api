@@ -38,7 +38,7 @@ export const updateTask = async (req, res) => {
         );
         res.status(200).json(updated);
     } catch (err) {
-        res.status(400).json({ error: err.message });
+        res.status(err.status || 400).json({ error: err.message });
     }
 };
 
@@ -47,6 +47,6 @@ export const deleteTask = async (req, res) => {
         const result = await TaskService.deleteTask(req.user.id, req.params.id);
         res.status(200).json(result);
     } catch (err) {
-        res.status(400).json({ error: err.message });
+        res.status(err.status || 400).json({ error: err.message });
     }
 };

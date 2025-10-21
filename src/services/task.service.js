@@ -34,18 +34,20 @@ export const getTaskById = async (userId, taskId) => {
 };
 
 export const updateTask = async (userId, taskId, data) => {
-    const task = await prisma.task.findFirst({ where: { id: taskId, userId } });
-    if (!task) throw new Error("Task not found");
+    const task = await prisma.task.findUnique({ where: { id: taskId } });
+    if (!task) throw { status: 404, message: "Task not found" };
+    if (task.userId !== userId) throw { status: 403, message: "Forbidden" };
 
-    return await prisma.task.update({
+    return prisma.task.update({
         where: { id: taskId },
         data,
     });
 };
 
 export const deleteTask = async (userId, taskId) => {
-    const task = await prisma.task.findFirst({ where: { id: taskId, userId } });
-    if (!task) throw new Error("Task not found");
+    const task = await prisma.task.findUnique({ where: { id: taskId } });
+    if (!task) throw { status: 404, message: "Task not found" };
+    if (task.userId !== userId) throw { status: 403, message: "Forbidden" };
 
     await prisma.task.delete({ where: { id: taskId } });
     return { message: "Task deleted successfully" };
