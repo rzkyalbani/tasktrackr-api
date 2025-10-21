@@ -1,5 +1,4 @@
-import { PrismaClient } from "../generated/prisma/index.js";
-const prisma = new PrismaClient();
+import prisma from "../config/prisma.js";
 
 export const createTask = async (userId, data) => {
     return prisma.task.create({
