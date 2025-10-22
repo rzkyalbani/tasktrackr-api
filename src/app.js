@@ -8,6 +8,7 @@ import { errorHandler } from "./middlewares/error.middleware.js";
 // Routes
 import authRoutes from "./routes/auth.routes.js";
 import taskRoutes from "./routes/task.routes.js";
+import taskStatsRoutes from "./routes/taskStats.routes.js";
 
 dotenv.config();
 const app = express();
@@ -24,6 +25,7 @@ app.use(cookieParser());
 
 // Routes
 app.use("/api/v1/auth", authRoutes);
+app.use("/api/v1/tasks", taskStatsRoutes);
 app.use("/api/v1/tasks", taskRoutes);
 
 // Health check
