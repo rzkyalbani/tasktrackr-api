@@ -1,12 +1,14 @@
 import * as TaskStatsService from "../services/taskStats.service.js";
 
-export const getWeeklyStats = async (req, res, next) => {
+export const getStats = async (req, res, next) => {
     try {
-        const stats = await TaskStatsService.getWeeklyStats(req.user.id);
+        const range = req.query.range || "week";
+        const data = await TaskStatsService.getStats(req.user.id, range);
+
         res.status(200).json({
             success: true,
-            message: "Weekly stats retrieved successfully",
-            data: stats,
+            message: `Task stats retrieved successfully (${range})`,
+            data,
         });
     } catch (err) {
         next(err);

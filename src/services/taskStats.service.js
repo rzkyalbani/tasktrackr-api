@@ -1,25 +1,32 @@
 import prisma from "../config/prisma.js";
 import AppError from "../errors/AppError.js";
 
-export const getWeeklyStats = async (userId) => {
+export const getStats = async (userId, range = "week") => {
     const now = new Date();
-    const startOfWeek = new Date();
-    startOfWeek.setDate(now.getDate() - 7);
+    const start = new Date();
 
-    // Ambil semua task user dalam 7 hari terakhir
+    // Range selector
+    const days = range === "month" ? 30 : 7;
+    start.setDate(now.getDate() - days);
+
     const tasks = await prisma.task.findMany({
         where: {
             userId,
-            createdAt: {
-                gte: startOfWeek,
-                lte: now,
-            },
+            createdAt: { gte: start, lte: now },
         },
     });
 
-
+    // No data reponse
     if (!tasks.length) {
-        throw new AppError("No tasks found in the past week", 404);
+        return {
+            totalTasks: 0,
+            completed: 0,
+            pending: 0,
+            overdue: 0,
+            completionRate: 0,
+            streak: 0,
+            range,
+        };
     }
 
     const completed = tasks.filter((t) => t.status === "completed").length;
@@ -31,8 +38,6 @@ export const getWeeklyStats = async (userId) => {
 
     const total = tasks.length;
     const completionRate = total > 0 ? (completed / total) * 100 : 0;
-
-    // Hitung streak produktivitas
     const streak = calculateStreak(tasks);
 
     return {
@@ -42,16 +47,15 @@ export const getWeeklyStats = async (userId) => {
         overdue,
         completionRate: Number(completionRate.toFixed(2)),
         streak,
+        range,
     };
 };
 
-// Helper buat hitung streak
 function calculateStreak(tasks) {
     const completedDates = tasks
         .filter((t) => t.status === "completed")
         .map((t) => new Date(t.updatedAt).toDateString());
 
-    // Hilangkan duplikat tanggal
     const uniqueDates = [...new Set(completedDates)].sort(
         (a, b) => new Date(b) - new Date(a)
     );
@@ -62,13 +66,10 @@ function calculateStreak(tasks) {
     for (let dateStr of uniqueDates) {
         const d = new Date(dateStr);
         const diff = Math.floor((currentDate - d) / (1000 * 60 * 60 * 24));
-
         if (diff === 0 || diff === 1) {
             streak++;
             currentDate = d;
-        } else {
-            break;
-        }
+        } else break;
     }
 
     return streak;

@@ -4,6 +4,6 @@ import * as TaskStatsController from "../controllers/taskStats.controller.js";
 
 const router = Router();
 
-router.get("/stats", authenticate, TaskStatsController.getWeeklyStats);
+router.get("/stats", authenticate, TaskStatsController.getStats);
 
 export default router;
