@@ -2,10 +2,14 @@ import prisma from "../config/prisma.js";
 import AppError from "../errors/AppError.js";
 
 export const getStats = async (userId, range = "week") => {
+    const allowedRanges = ["week", "month"];
+    if (!allowedRanges.includes(range)) {
+        throw new AppError("Invalid range value. Use 'week' or 'month'.", 400);
+    }
+
     const now = new Date();
     const start = new Date();
 
-    // Range selector
     const days = range === "month" ? 30 : 7;
     start.setDate(now.getDate() - days);
 
@@ -16,7 +20,6 @@ export const getStats = async (userId, range = "week") => {
         },
     });
 
-    // No data reponse
     if (!tasks.length) {
         return {
             totalTasks: 0,
