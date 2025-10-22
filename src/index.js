@@ -1,4 +1,6 @@
 import app from "./app.js";
+import "./cron/reminder.job.js";
+
 const PORT = process.env.PORT || 8080;
 
 app.listen(PORT, () => {
