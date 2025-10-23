@@ -7,4 +7,7 @@ export const config = {
     jwtRefreshSecret: process.env.JWT_REFRESH_SECRET,
     accessExp: process.env.ACCESS_TOKEN_EXP || "5m",
     refreshExp: process.env.REFRESH_TOKEN_EXP || "7d",
+    redisHost: process.env.REDIS_HOST,
+    redisPort: process.env.REDIS_PORT,
+    redisPassword: process.env.REDIS_PASSWORD,
 };
